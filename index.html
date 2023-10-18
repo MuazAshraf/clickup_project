@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transcript Fetcher</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <button class="btn btn-primary mt-5" onclick="fetchTranscript()">Fetch Transcript</button>
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Transcript:</h2>
+            <textarea id="transcript" style="width: 100%; height: 200px;"></textarea>
+            <h2>Summary:</h2>
+            <pre id="summary" style="white-space: pre-wrap;"></pre>
+            <h2>Project Plan:</h2>
+            <pre id="project_plan" style="white-space: pre-wrap;"></pre>
+            <h2>Project Deadline:</h2>
+            <pre id="project_deadline" style="white-space: pre-wrap;"></pre>
+        </div>
+    </div>
+</div>
+<button class="btn btn-secondary mt-5" onclick="showNamespaceInput()">Save to Pinecone</button>
+<div id="namespaceInput" style="display:none;">
+    <input type="text" id="pineconeNamespace" placeholder="Enter Pinecone Namespace">
+    <button class="btn btn-primary mt-5" onclick="saveToPinecone()">Save to Pinecone</button>
+</div>
+
+<!-- jQuery and Bootstrap JavaScript -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    async function fetchTranscript() {
+        const response = await fetch('/get_transcript', {method: 'POST'});
+        const data = await response.json();
+        if (data.error) {
+            alert(data.error);
+        } else {
+            document.getElementById('transcript').value = data.transcript;
+            document.getElementById('summary').textContent = data.summary;
+            document.getElementById('project_plan').textContent = data.project_plan;
+            document.getElementById('project_deadline').textContent = data.project_deadline;
+        }
+    }
+
+   //For Pinecone
+    function showNamespaceInput() {
+        document.getElementById('namespaceInput').style.display = 'block';
+    }
+
+    async function saveToPinecone() {
+    const transcriptData = document.getElementById('transcript').value;  // Use .value instead of .textContent for textarea
+    const namespace = document.getElementById('pineconeNamespace').value;  // Fetch the namespace from the input field
+    const response = await fetch('/save_to_pinecone', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `transcript=${encodeURIComponent(transcriptData)}&namespace=${encodeURIComponent(namespace)}`,
+    });
+    const data = await response.json();  // Parse the JSON response
+    if (data.success) {
+        window.location.href = '/clickup_agent';  // Redirect to the ClickUp Agent page
+    } else {
+        alert('Failed to save to Pinecone');  // Alert failure message
+    }
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClickUp Agent</title>
+</head>
+<body>
+    <h1>ClickUp Agent</h1>
+    <input type="text" id="commandInput" placeholder="Enter your command">
+    <button onclick="runCommand()">Execute Command</button>
+<script>    
+    async function runCommand() {
+        const command = document.getElementById('commandInput').value;
+        const response = await fetch('/run_command', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ command: command }),
+        });
+        const data = await response.json();
+        // Handle the response, e.g., display a success message or error
+    }
+</script> 
+</body>
+</html>
