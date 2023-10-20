@@ -185,7 +185,7 @@ def initialize_agent_route():
     clickup_api_wrapper = ClickupAPIWrapper(access_token=access_token)
     toolkit = ClickupToolkit.from_clickup_api_wrapper(clickup_api_wrapper)
     print(f'Found team_id: {clickup_api_wrapper.team_id}.\nMost request require the team id, so we store it for you in the toolkit, we assume the first team in your list is the one you want. \nNote: If you know this is the wrong ID, you can pass it at initialization.')
-    llm = ChatOpenAI(temperature=0, openai_api_key="OPENAI_API_KEY")
+    llm = ChatOpenAI(temperature=0, openai_api_key=OPENAI_API_KEY)
     memory = ConversationBufferMemory(memory_key="chat_history")
     agent = initialize_agent(
         toolkit.get_tools(), llm=llm, memory = memory, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION, verbose=True
