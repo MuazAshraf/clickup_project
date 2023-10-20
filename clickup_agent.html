@@ -6,22 +6,106 @@
     <title>ClickUp Agent</title>
 </head>
 <body>
-    <h1>ClickUp Agent</h1>
-    <input type="text" id="commandInput" placeholder="Enter your command">
-    <button onclick="runCommand()">Execute Command</button>
-<script>    
-    async function runCommand() {
-        const command = document.getElementById('commandInput').value;
-        const response = await fetch('/run_command', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ command: command }),
-        });
-        const data = await response.json();
-        // Handle the response, e.g., display a success message or error
-    }
-</script> 
+    <h2>ClickUp Actions:</h2>
+    
+    <button onclick="initializeAgent()">Initialize Agent</button>
+
+    <div id="folderDiv" style="display:none;">
+        <label for="folderName">Folder Name:</label>
+        <input type="text" id="folderName" placeholder="Enter folder name">
+        <button onclick="createFolder()">Create Folder</button>
+    </div>
+
+    <div id="listDiv" style="display:none;">
+        <label for="listName">List Name:</label>
+        <input type="text" id="listName" placeholder="Enter list name">
+        
+        <label for="priority">Priority:</label>
+        <input type="text" id="priority" placeholder="Enter priority">
+        
+        <button onclick="createList()">Create List</button>
+    </div>
+    <br>
+<div id="taskDiv" style="display:none;">
+    <label for="taskName">Task Name:</label>
+    <input type="text" id="taskName" placeholder="Enter task name">
+    <label for="assigneeName">Assign to:</label>
+    <input type="text" id="assigneeName" placeholder="Enter person's name">
+    <label for="description">Description:</label>
+    <input type="text" id="description" placeholder="Enter description">
+  
+    
+
+    <button onclick="createTask()">Create Task</button>
+</div>
+    
+    <script>
+        function initializeAgent() {
+    fetch('/initialize_agent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('Agent Initialized Successfully!');
+            document.getElementById('folderDiv').style.display = "block"; // Show folder creation section
+        } else {
+            alert(data.message);
+        }
+    });
+}
+
+function createFolder() {
+    const folderName = document.getElementById('folderName').value;
+
+    fetch('/create_folder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ folder_name: folderName })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.response);
+        document.getElementById('listDiv').style.display = "block"; // Show list creation section
+    });
+}
+
+function createList() {
+    const listName = document.getElementById('listName').value;
+    const priority = document.getElementById('priority').value;
+
+    fetch('/create_list', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ listName: listName, priority: priority })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.response);
+        document.getElementById('taskDiv').style.display = "block"; // Show task creation section
+    });
+}
+
+function createTask() {
+    const taskName = document.getElementById('taskName').value;
+    const assigneeName = document.getElementById('assigneeName').value;
+    const description = document.getElementById('description').value;
+
+    // Construct the command dynamically
+    const command = `Figure out what user ID ${assigneeName} is, create a task called '${taskName}', description '${description}', then assign it to ${assigneeName}`;
+
+    fetch('/execute_command', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ command: command })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.response);
+    });
+}
+
+    </script>
 </body>
 </html>
