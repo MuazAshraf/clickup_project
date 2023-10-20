@@ -294,5 +294,5 @@ def get_roles(name):
         return jsonify(status='error', message=f'No roles found for {name}')
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False)
 
