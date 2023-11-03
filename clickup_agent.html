@@ -1,44 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ClickUp Agent</title>
+    <title>ClickUp Integration with Agent</title>
 </head>
+
 <body>
-    <h2>ClickUp Actions:</h2>
-    
+    <h2>ClickUp Actions via Agent:</h2>
     <button onclick="initializeAgent()">Initialize Agent</button>
 
-    <div id="folderDiv" style="display:none;">
+    <div id="structureDiv"style="display:none;">
         <label for="folderName">Folder Name:</label>
-        <input type="text" id="folderName" placeholder="Enter folder name">
-        <button onclick="createFolder()">Create Folder</button>
-    </div>
+        <input type="text" id="folderName" placeholder="Folder Name">
 
-    <div id="listDiv" style="display:none;">
         <label for="listName">List Name:</label>
-        <input type="text" id="listName" placeholder="Enter list name">
-        
-        <label for="priority">Priority:</label>
-        <input type="text" id="priority" placeholder="Enter priority">
-        
-        <button onclick="createList()">Create List</button>
-    </div>
-    <br>
-<div id="taskDiv" style="display:none;">
-    <label for="taskName">Task Name:</label>
-    <input type="text" id="taskName" placeholder="Enter task name">
-    <label for="assigneeName">Assign to:</label>
-    <input type="text" id="assigneeName" placeholder="Enter person's name">
-    <label for="description">Description:</label>
-    <input type="text" id="description" placeholder="Enter description">
-  
-    
+        <input type="text" id="listName" placeholder="List Name">
 
-    <button onclick="createTask()">Create Task</button>
-</div>
-    
+        <label for="taskName">Task Name:</label>
+        <input type="text" id="taskName" placeholder="Enter task name">
+
+        <label for="description">Description:</label>
+        <input type="text" id="description" placeholder="Enter description">
+
+        <label for="assigneeName">Assign to:</label>
+        <input type="text" id="assigneeName" placeholder="Enter person's name">
+
+        <button onclick="createStructureWithAgent()">Create Structure with Agent</button>
+    </div>
+
     <script>
         function initializeAgent() {
     fetch('/initialize_agent', {
@@ -49,63 +40,43 @@
     .then(data => {
         if (data.status === 'success') {
             alert('Agent Initialized Successfully!');
-            document.getElementById('folderDiv').style.display = "block"; // Show folder creation section
+            document.getElementById('structureDiv').style.display = "block"; // Show folder creation section
         } else {
             alert(data.message);
         }
     });
 }
-
-function createFolder() {
-    const folderName = document.getElementById('folderName').value;
-
-    fetch('/create_folder', {
+        function createStructureWithAgent() {
+            const folderName = document.getElementById('folderName').value;
+            const listName = document.getElementById('listName').value;
+            const taskName = document.getElementById('taskName').value;
+            const description = document.getElementById('description').value;
+            const assigneeName = document.getElementById('assigneeName').value;
+            
+        fetch('/create_structure_with_agent', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ folder_name: folderName })
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'MojoDeadWalking' // Add the secret token here
+        },
+        body: JSON.stringify({
+            folderName: folderName,
+            listName: listName,
+            taskName: taskName,
+            description: description,
+            assigneeName: assigneeName
+        })
     })
     .then(response => response.json())
     .then(data => {
-        alert(data.response);
-        document.getElementById('listDiv').style.display = "block"; // Show list creation section
-    });
-}
-
-function createList() {
-    const listName = document.getElementById('listName').value;
-    const priority = document.getElementById('priority').value;
-
-    fetch('/create_list', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ listName: listName, priority: priority })
+        alert(`Folder: ${data.folder_response}\nList: ${data.list_response}\nTask: ${data.task_response}`);
     })
-    .then(response => response.json())
-    .then(data => {
-        alert(data.response);
-        document.getElementById('taskDiv').style.display = "block"; // Show task creation section
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while creating the structure using the agent.');
     });
 }
-
-function createTask() {
-    const taskName = document.getElementById('taskName').value;
-    const assigneeName = document.getElementById('assigneeName').value;
-    const description = document.getElementById('description').value;
-
-    // Construct the command dynamically
-    const command = `Figure out what user ID ${assigneeName} is, create a task called '${taskName}', description '${description}', then assign it to ${assigneeName}`;
-
-    fetch('/execute_command', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ command: command })
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert(data.response);
-    });
-}
-
     </script>
 </body>
+
 </html>
